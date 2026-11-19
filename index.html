@@ -239,11 +239,6 @@
       border-radius: 8px;
       padding: 8px;
     }
-    .qr-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
     .upi-badge {
       font-size: 13px;
       font-weight: 700;
@@ -312,6 +307,12 @@
     .btn-submit:hover {
       background-color: #15803d;
       transform: translateY(-1px);
+    }
+    .btn-submit:disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
     .btn-reset {
       background-color: #64748b;
@@ -510,7 +511,6 @@
             <div class="upi-badge">BHIM UPI / PhonePe / GPay / Paytm</div>
             
             <div class="qr-box">
-              <!-- Dynamic UPI QR Display -->
               <svg width="120" height="120" viewBox="0 0 100 100" fill="#0f172a">
                 <path d="M0 0h30v30H0zM10 10h10v10H10zM70 0h30v30H70zM80 10h10v10H80zM0 70h30v30H0zM10 80h10v10H10zM40 10h10v10H40zM55 10h10v10H55zM40 30h10v10H40zM20 40h10v10H20zM35 50h10v10H35zM70 40h10v10H70zM85 45h10v10H85zM60 65h10v10H60zM45 75h10v10H45zM75 75h20v20H75z"/>
               </svg>
@@ -522,7 +522,7 @@
               (Enlighting Humanity Trust)
             </div>
 
-            <!-- Click to Pay directly on Mobile via PhonePe/GPay -->
+            <!-- Click to Pay on Mobile -->
             <a href="upi://pay?pa=9654518368@upi&pn=Enlighting%20Humanity%20Trust&am=708.00&cu=INR" class="btn-upi-pay" id="upiPayBtn">
               📱 Click to Pay via UPI App (PhonePe / GPay)
             </a>
@@ -551,7 +551,6 @@
               <input type="file" class="form-control" id="payScreenshot" accept="image/*">
             </div>
 
-            <!-- Alternative Online Gateway Link -->
             <div style="margin-top: 14px; text-align: center; border-top: 1px dashed #fed7aa; padding-top: 10px;">
               <span style="font-size: 12px; color: #78350f;">यदि UPI काम न करे, तो कार्ड/नेटबैंकिंग से पे करें:</span>
               <a href="#" class="rzp-btn" onclick="alert('यहाँ आपका Razorpay / Cashfree का पेमेंट लिंक ओपन हो जाएगा।'); return false;">
@@ -583,10 +582,10 @@
   </div>
 
   <script>
-    // ============================================================
-    // GOOGLE SHEET WEB APP URL (अपनी गूगल शीट का लिंक यहाँ डालें)
-    // ============================================================
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuNdKTkcVg2T7ACqBgsnd5o3Zi4-HRm73ieOarwZGNtZX_YimWiFKHmFLN1jUpqyK1/exec"; 
+    // =========================================================================
+    // आपका असली GOOGLE APPS SCRIPT URL (जो सीधे आपकी Google Sheet में लिखेगा)
+    // =========================================================================
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuNdKTkcVg2T7ACqBgsnd5o3Zi4-HRm73ieOarwZGNtZX_YimWiFKHmFLN1jUpqyK1/exec";
 
     function updateFee() {
       const type = document.getElementById('postType').value;
@@ -617,10 +616,10 @@
 
     function handleFormSubmit(e) {
       e.preventDefault();
-      
+
       const submitBtn = document.querySelector('.btn-submit');
       const originalText = submitBtn.innerText;
-      submitBtn.innerText = "जमा हो रहा है... कृपया प्रतीक्षा करें (Submitting...)";
+      submitBtn.innerText = "जमा हो रहा है... कृपया 2 सेकंड प्रतीक्षा करें (Saving to Google Sheet...)";
       submitBtn.disabled = true;
 
       const payload = {
@@ -641,45 +640,26 @@
         txnId: document.getElementById('txnId').value || 'FREE_POST'
       };
 
-      if (!GOOGLE_SCRIPT_URL) {
-        // If Google Sheet link is not attached yet, show friendly confirmation
-        setTimeout(function() {
-          submitBtn.innerText = originalText;
-          submitBtn.disabled = false;
-          alert("✅ आवेदन सफलतापूर्वक दर्ज हुआ!
-
-आवेदक का नाम: " + payload.applicantName + "
-मोबाइल: " + payload.mobileNumber + "
-पद: " + payload.postType + "
-फीस: ₹" + payload.regFee + "
-लेनदेन UTR: " + payload.txnId + "
-
-[नोट]: जब आप अपना Google Apps Script URL लिंक जोड़ देंगे, तो यह पूरा डेटा आपकी Google Sheet में स्वतः सेव हो जाएगा!");
-          document.getElementById('applicationForm').reset();
-        }, 800);
-        return;
-      }
-
-      // Send to Google Sheets Web App
+      // सीधे आपकी Google Sheet में डेटा भेजने का लाइव कोड
       fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(payload)
       })
       .then(function() {
         submitBtn.innerText = originalText;
         submitBtn.disabled = false;
-        alert("✅ बधाई हो " + payload.applicantName + " जी!
-
-आपका आवेदन और पेमेंट विवरण सफलतापूर्वक जमा हो गया है। Enlighting Humanity Trust की टीम जल्द ही आपसे संपर्क करेगी।");
+        alert("✅ बधाई हो " + payload.applicantName + " जी!\n\nआपका आवेदन और पेमेंट विवरण सफलतापूर्वक जमा हो गया है। डेटा Enlighting Humanity Trust की Google Sheet में सुरक्षित दर्ज हो चुका है।");
         document.getElementById('applicationForm').reset();
       })
-      .catch(function(error) {
+      .catch(function(err) {
         submitBtn.innerText = originalText;
         submitBtn.disabled = false;
-        alert("सबमिट करने में त्रुटि आई। कृपया पुनः प्रयास करें।");
-        console.error(error);
+        alert("त्रुटि: डेटा भेजने में समस्या आई। कृपया पुनः प्रयास करें।");
+        console.error(err);
       });
     }
   </script>
